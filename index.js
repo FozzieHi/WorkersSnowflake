@@ -32,7 +32,7 @@ async function handleRequest(request) {
 		return new Response('Exhausted nodeId amount', { status: 400 } );
 	}
         await snowflake_kv.put(request.cf.colo, nodeId);
-		await snowflake_kv.put('currentId', nodeId);
+	await snowflake_kv.put('currentId', nodeId);
     } 
     return new Response(nextId(), { status: 200 });
   } else if (action === 'Get') {
