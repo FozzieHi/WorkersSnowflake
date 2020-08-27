@@ -3,15 +3,15 @@ addEventListener('fetch', event => {
 })
 
 const UNUSED_BITS = 1;
-const EPOCH_BITS = 45;
-const NODE_ID_BITS = 6;
+const EPOCH_BITS = 42;
+const NODE_ID_BITS = 9;
 const SEQUENCE_BITS = 12;
 
 const maxNodeId = (1 << NODE_ID_BITS) - 1;
 const maxSequence = (1 << SEQUENCE_BITS) - 1;
 
 // Change nodeId if multiple servers are running
-const nodeId = 1;
+let nodeId;
 // Custom Epoch (1 January 2020 00:00:00 UTC) in milliseconds.
 const customEpoch = BigInt(1577836800000);
 
@@ -23,6 +23,11 @@ let sequence = 0;
  * @param {Request} request
  */
 async function handleRequest(request) {
+  nodeId = await snowflake_kv.get(request.cf.colo) || -1;
+  if (nodeId === -1) {
+    nodeId = (await snowflake_kv.get('currentId') || 0) + 1;
+    await snowflake_kv.put(request.cf.colo, nodeId);
+  } 
   const action = request.headers.get('Action') || '';
   if (action === 'Next') {
     return new Response(nextId(), { status: 200 });
