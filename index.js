@@ -23,13 +23,13 @@ let sequence = 0;
  * @param {Request} request
  */
 async function handleRequest(request) {
-  nodeId = await snowflake_kv.get(request.cf.colo) || -1;
-  if (nodeId === -1) {
-    nodeId = (await snowflake_kv.get('currentId') || 0) + 1;
-    await snowflake_kv.put(request.cf.colo, nodeId);
-  } 
   const action = request.headers.get('Action') || '';
   if (action === 'Next') {
+    nodeId = await snowflake_kv.get(request.cf.colo) || -1;
+    if (nodeId === -1) {
+        nodeId = (await snowflake_kv.get('currentId') || 0) + 1;
+        await snowflake_kv.put(request.cf.colo, nodeId);
+    } 
     return new Response(nextId(), { status: 200 });
   } else if (action === 'Get') {
     const id = BigInt(request.headers.get('Id'));
