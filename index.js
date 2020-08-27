@@ -27,12 +27,12 @@ async function handleRequest(request) {
   if (action === 'Next') {
     nodeId = await snowflake_kv.get(request.cf.colo) || -1;
     if (nodeId === -1) {
-        nodeId = (await snowflake_kv.get('currentId') || 0) + 1;
-	    if (nodeId > 512) {
-		  return new Response('Exhausted nodeId amount', { status: 400 } );
-	    }
-        await snowflake_kv.put(request.cf.colo, nodeId);
-	    await snowflake_kv.put('currentId', nodeId);
+nodeId = (await snowflake_kv.get('currentId') || 0) + 1;
+if (nodeId > 512) {
+return new Response('Exhausted nodeId amount', { status: 400 } );
+}
+await snowflake_kv.put(request.cf.colo, nodeId);
+await snowflake_kv.put('currentId', nodeId);
     }
     return new Response(nextId(), { status: 200 });
   } else if (action === 'Get') {
