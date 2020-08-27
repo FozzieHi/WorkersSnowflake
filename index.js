@@ -12,7 +12,7 @@ const maxSequence = (1 << SEQUENCE_BITS) - 1;
 
 // Change nodeId if multiple servers are running
 const nodeId = 1;
-// Custom Epoch (1 January 2020 00:00:00 UTC) in milliseconds, with a 41 bit custom epoch this gives us 69 years
+// Custom Epoch (1 January 2020 00:00:00 UTC) in milliseconds.
 const customEpoch = BigInt(1577836800000);
 
 let lastTimestamp = -1;
@@ -37,15 +37,15 @@ async function handleRequest(request) {
 function nextId() {
   const currentTimestamp = BigInt(new Date().getTime()) - customEpoch;
 
-  if (currentTimestamp < lastTimestamp) {
+  if (currentTimestamp < BigInt(lastTimestamp)) {
     return new Response('Invalid system clock', { status: 400 });
   }
 
-  if (currentTimestamp == lastTimestamp) {
+  if (currentTimestamp == BigInt(lastTimestamp)) {
     sequence = (sequence + 1) & maxSequence;
     if (sequence == 0) {
       // Already have a Snowflake for this millisecond, wait until the next millisecond
-      currentTimestamp = waitNextMillis(currentTimestamp);
+      currentTimestamp = wait(currentTimestamp);
     }
   } else {
     sequence = 0;
@@ -60,8 +60,8 @@ function getTimestamp(id) {
   return (id >> BigInt((NODE_ID_BITS + SEQUENCE_BITS))) + customEpoch;
 }
 
-function waitNextMillis(currentTimestamp) {
-  while (BigInt(currentTimestamp) === BigInt(lastTimestamp)) {
+function wait(currentTimestamp) {
+  while (currentTimestamp === BigInt(lastTimestamp)) {
     currentTimestamp = BigInt(new Date().getTime()) - customEpoch;
   }
   return currentTimestamp;
