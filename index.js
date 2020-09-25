@@ -27,7 +27,7 @@ async function handleRequest(request) {
   if (action === 'Next') {
     nodeId = await snowflake_kv.get(request.cf.colo) || -1;
     if (nodeId === -1) {
-      nodeId = (await snowflake_kv.get('currentId') || 0) + 1;
+      nodeId = parseInt((await snowflake_kv.get('currentId') || 0)) + 1;
       if (nodeId > 512) {
         return new Response('Exhausted nodeId amount', { status: 400 } );
       }
